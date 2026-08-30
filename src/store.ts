@@ -1,5 +1,4 @@
 import { daysUntil, isDueToday, isOverdue, parseUntil, relativeDue } from "./dates";
-import { seedLoops } from "./seed";
 import type {
   CompactLoop,
   Counts,
@@ -11,7 +10,7 @@ import type {
 } from "./types";
 import { STATUSES } from "./types";
 
-const KEY = "loops.v1";
+const KEY = "loops.v2";
 
 type Listener = () => void;
 
@@ -21,12 +20,12 @@ const listeners = new Set<Listener>();
 function load(): Loop[] {
   try {
     const raw = localStorage.getItem(KEY);
-    if (!raw) return seedLoops();
+    if (!raw) return [];
     const parsed = JSON.parse(raw) as Loop[];
-    if (!Array.isArray(parsed) || parsed.length === 0) return seedLoops();
+    if (!Array.isArray(parsed)) return [];
     return parsed;
   } catch {
-    return seedLoops();
+    return [];
   }
 }
 
@@ -344,7 +343,7 @@ export function planToday(): {
       ? "Review draft, then approve_draft or edit"
       : reason === "overdue"
         ? "Write or draft_message, then approve"
-        : "Do this today - draft_message if useful";
+        : "Do this today — draft_message if useful";
     return {
       id: l.id,
       title: l.title,
@@ -383,11 +382,6 @@ function normalizePeople(people?: Array<string | Person>): Person[] {
   return people
     .map((p) => (typeof p === "string" ? { name: p.trim() } : { name: p.name.trim(), role: p.role }))
     .filter((p) => p.name);
-}
-
-export function resetToSeed(): void {
-  loops = seedLoops();
-  persist();
 }
 
 if (typeof window !== "undefined" && !localStorage.getItem(KEY)) {
