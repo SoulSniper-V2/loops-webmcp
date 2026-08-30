@@ -22,18 +22,23 @@ import { FILTERS } from "./types";
 import type { Filter, Loop, LoopStatus } from "./types";
 import { registerTools, TOOL_NAMES, getModelContext } from "./webmcp";
 
+const EMPTY_INBOX = {
+  title: "Nothing here yet.",
+  body: "Hit New loop, or ask an agent to add one.",
+};
+
 const EMPTY: Record<Filter, { title: string; body: string }> = {
   today: {
     title: "Nothing asking for you.",
-    body: "That's the point. Overdue work, drafts waiting on a tap, and anything due today land here.",
+    body: "That’s the point. Overdue work, drafts waiting on a tap, and anything due today land here.",
   },
   owed: {
-    title: "You don't owe anyone a thing.",
-    body: "When someone is waiting on you - an intro, a recap, a reservation - it will sit in this list.",
+    title: "You don’t owe anyone a thing.",
+    body: "When someone is waiting on you — an intro, a recap, a reservation — it will sit in this list.",
   },
   waiting: {
     title: "No one is holding you up.",
-    body: "Refunds, take-homes, replies you're tracking live here until they move.",
+    body: "Refunds, take-homes, replies you’re tracking live here until they move.",
   },
   draft: {
     title: "No drafts waiting for a human.",
@@ -44,8 +49,6 @@ const EMPTY: Record<Filter, { title: string; body: string }> = {
     body: "Finished work stays out of Today, so the inbox can stay small.",
   },
 };
-
-const DOT = "\u00b7";
 
 export function App() {
   const loops = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
@@ -111,7 +114,7 @@ export function App() {
       if (typing) return;
       if (e.key === "j") move(1);
       if (e.key === "k") move(-1);
-      if (e.key === "/") {
+      if (e.key === "/" ) {
         e.preventDefault();
         searchRef.current?.focus();
       }
@@ -133,7 +136,7 @@ export function App() {
       {!connected && banner && (
         <div className="banner">
           <span>
-            Agent tools need ChatGPT desktop's in-app browser, or Chrome 149+ with{" "}
+            Agent tools need ChatGPT desktop’s in-app browser, or Chrome 149+ with{" "}
             <code>chrome://flags/#enable-webmcp-testing</code>. The inbox works either way.
           </span>
           <button className="dismiss" onClick={() => setBanner(false)} aria-label="Dismiss">
@@ -172,10 +175,7 @@ export function App() {
               {connected ? (
                 <>
                   <strong>Agent connected</strong>
-                  <div>
-                    {" "}
-                    {DOT} {tools.length || TOOL_NAMES.length} tools
-                  </div>
+                  <div> · {tools.length || TOOL_NAMES.length} tools</div>
                   <div className="tool-tip">{(tools.length ? tools : [...TOOL_NAMES]).join("\n")}</div>
                 </>
               ) : (
@@ -185,9 +185,7 @@ export function App() {
                 </>
               )}
             </div>
-            <div className="keys">
-              j k move {DOT} n new {DOT} / search
-            </div>
+            <div className="keys">j k move · n new · / search</div>
           </div>
         </aside>
 
@@ -219,8 +217,20 @@ export function App() {
           <div className="rows">
             {visible.length === 0 ? (
               <div className="empty">
-                <h2>{query ? "Nothing matches." : EMPTY[filter].title}</h2>
-                <p>{query ? "Try a name, or clear the search." : EMPTY[filter].body}</p>
+                <h2>
+                  {query
+                    ? "Nothing matches."
+                    : loops.length === 0
+                      ? EMPTY_INBOX.title
+                      : EMPTY[filter].title}
+                </h2>
+                <p>
+                  {query
+                    ? "Try a name, or clear the search."
+                    : loops.length === 0
+                      ? EMPTY_INBOX.body
+                      : EMPTY[filter].body}
+                </p>
               </div>
             ) : (
               visible.map((loop) => (
@@ -263,8 +273,12 @@ export function App() {
           ) : (
             <div className="detail-empty">
               <div className="empty">
-                <h2>Pick a loop.</h2>
-                <p>The list is on the left. Today is the work. Everything else can wait.</p>
+                <h2>{loops.length === 0 ? EMPTY_INBOX.title : "Pick a loop."}</h2>
+                <p>
+                  {loops.length === 0
+                    ? EMPTY_INBOX.body
+                    : "The list is on the left. Today is the work. Everything else can wait."}
+                </p>
               </div>
             </div>
           )}
@@ -312,7 +326,7 @@ function LoopRow({
       <span>
         <div className="title">{loop.title}</div>
         <div className="sub">
-          <span>{loop.people.map((p) => p.name).join(" " + DOT + " ") || "No one yet"}</span>
+          <span>{loop.people.map((p) => p.name).join(" · ") || "No one yet"}</span>
         </div>
       </span>
       <span className="aside">
@@ -361,7 +375,7 @@ function Detail({
     <>
       <div className="detail-scroll">
         <button className="back" onClick={onBack}>
-          Inbox
+          ← Inbox
         </button>
         <div className="kicker">
           <span className="pill">{loop.status}</span>
@@ -387,8 +401,8 @@ function Detail({
         {loop.draft && (
           <div className="composer">
             <div className="who">
-              Draft from {loop.draft.createdBy === "agent" ? "the agent" : "you"} {DOT}{" "}
-              {formatWhen(loop.draft.createdAt)} {DOT} not sent
+              Draft from {loop.draft.createdBy === "agent" ? "the agent" : "you"} ·{" "}
+              {formatWhen(loop.draft.createdAt)} · not sent
             </div>
             <textarea
               value={draftText}
@@ -397,7 +411,7 @@ function Detail({
             />
             <div className="bar">
               <span style={{ fontSize: 12, color: "var(--faint)" }}>
-                {editing ? "Editing - save before you approve." : "Approve sends. The agent cannot."}
+                {editing ? "Editing — save before you approve." : "Approve sends. The agent cannot."}
               </span>
               {editing ? (
                 <button className="btn" onClick={onSaveDraft}>
@@ -464,7 +478,7 @@ function DraftBox({ onSubmit }: { onSubmit: (body: string) => void }) {
   const [body, setBody] = useState("");
   return (
     <div className="composer">
-      <div className="who">Write a draft - it will not send</div>
+      <div className="who">Write a draft — it will not send</div>
       <textarea
         value={body}
         placeholder="A short, human note."
