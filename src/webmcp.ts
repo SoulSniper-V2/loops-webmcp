@@ -104,7 +104,7 @@ const tools: WebMcpTool[] = [
       additionalProperties: false,
       required: ["id"],
       properties: {
-        id: { type: "string", description: "Loop id, e.g. lp_maya" },
+        id: { type: "string", description: "Loop id" },
       },
     },
     execute: wrap((args) => getLoop(str(args, "id", true))),
