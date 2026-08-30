@@ -45,6 +45,8 @@ const EMPTY: Record<Filter, { title: string; body: string }> = {
   },
 };
 
+const DOT = "\u00b7";
+
 export function App() {
   const loops = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
   const [filter, setFilter] = useState<Filter>("today");
@@ -170,8 +172,11 @@ export function App() {
               {connected ? (
                 <>
                   <strong>Agent connected</strong>
-                  <div> \u00b7 {tools.length || TOOL_NAMES.length} tools</div>
-                  <div className="tool-tip">{(tools.length ? tools : [...TOOL_NAMES]).join("\\n")}</div>
+                  <div>
+                    {" "}
+                    {DOT} {tools.length || TOOL_NAMES.length} tools
+                  </div>
+                  <div className="tool-tip">{(tools.length ? tools : [...TOOL_NAMES]).join("\n")}</div>
                 </>
               ) : (
                 <>
@@ -180,7 +185,9 @@ export function App() {
                 </>
               )}
             </div>
-            <div className="keys">j k move \u00b7 n new \u00b7 / search</div>
+            <div className="keys">
+              j k move {DOT} n new {DOT} / search
+            </div>
           </div>
         </aside>
 
@@ -305,7 +312,7 @@ function LoopRow({
       <span>
         <div className="title">{loop.title}</div>
         <div className="sub">
-          <span>{loop.people.map((p) => p.name).join(" \u00b7 ") || "No one yet"}</span>
+          <span>{loop.people.map((p) => p.name).join(" " + DOT + " ") || "No one yet"}</span>
         </div>
       </span>
       <span className="aside">
@@ -380,8 +387,8 @@ function Detail({
         {loop.draft && (
           <div className="composer">
             <div className="who">
-              Draft from {loop.draft.createdBy === "agent" ? "the agent" : "you"} \u00b7{" "}
-              {formatWhen(loop.draft.createdAt)} \u00b7 not sent
+              Draft from {loop.draft.createdBy === "agent" ? "the agent" : "you"} {DOT}{" "}
+              {formatWhen(loop.draft.createdAt)} {DOT} not sent
             </div>
             <textarea
               value={draftText}
