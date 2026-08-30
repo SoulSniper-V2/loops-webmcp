@@ -26,7 +26,7 @@ npm run build
 npm run preview
 ```
 
-No auth. State lives in `localStorage` under `loops.v1`. First visit seeds a believable founder week. Clear that key to reseed.
+No auth. State lives in `localStorage` under `loops.v2`. First visit starts empty — add a loop yourself, or ask an agent to file one.
 
 Required headers (already set for Vite dev/preview, Vercel, Netlify, and `public/_headers`):
 
